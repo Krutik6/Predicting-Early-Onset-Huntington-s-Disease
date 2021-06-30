@@ -1,8 +1,13 @@
+# Title     : Transorm Data For ML
+# Objective : Uses the known extracted features, and aggregates into data sets for ML
+# Created by: Colle
+# Created on: 30/06/2021
+
 library(factoextra)
-setwd("~/Documents/HD/Data/Early_detection/ML_input")
-miRNA <- read.csv("miRNA_data.csv", row.names = 1)
+setwd("C:\\Users\\Colle\\OneDrive\\Documents\\Boring\\2021 Summer Internship\\ShanleySummerStudent21\\Early Detection\\ML_input")
+miRNA <- read.csv("C:\\Users\\Colle\\OneDrive\\Documents\\Boring\\2021 Summer Internship\\ShanleySummerStudent21\\Early Detection\\ML_input\\miRNA_data.csv", row.names = 1)
 colnames(miRNA) <- gsub(colnames(miRNA), pattern = "\\.", replacement = "-")
-mRNA <- read.csv("mRNA_data.csv", row.names = 1)
+mRNA <- read.csv("C:\\Users\\Colle\\OneDrive\\Documents\\Boring\\2021 Summer Internship\\ShanleySummerStudent21\\Early Detection\\ML_input\\mRNA_data.csv", row.names = 1)
 
 #mRNA <- mRNA[which(rownames(mRNA) %in% rownames(miRNA)),]
 #miRNA <- miRNA[which(rownames(miRNA) %in% rownames(mRNA)),]
@@ -12,13 +17,15 @@ intersect(rownames(mRNA), rownames(miRNA))
 Data <- cbind(mRNA, miRNA)
 Samples <- Data$Samples
 Data$Samples <- NULL
+#######################################
+# PCA - irrelevant for my interpretation
 
 res.pca <- prcomp(Data, scale = TRUE)
 fviz_eig(res.pca)
 fviz_pca_ind(res.pca,
-             col.ind = "cos2", 
+             col.ind = "cos2",
              gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
-             repel = TRUE 
+             repel = TRUE
 )
 fviz_pca_var(res.pca,
              col.var = "contrib", # Color by contributions to the PC
@@ -29,15 +36,19 @@ fviz_pca_biplot(res.pca, repel = TRUE,
                 col.var = "#2E9FDF", # Variables color
                 col.ind = "#696969"  # Individuals color
 )
+
+#########################################
 # input for ML - training data
 Data$Samples <- Samples
 Data$Samples <- sub(Data$Samples, pattern = "_10m", replacement = "")
 Data$Samples <- sub(Data$Samples, pattern = "_6m", replacement = "")
-write.csv(Data, "ML_Data.csv", row.names = TRUE)
+write.csv(Data, "C:\\Users\\Colle\\OneDrive\\Documents\\Boring\\2021 Summer Internship\\ShanleySummerStudent21\\Early Detection\\ML_input\\ML_Data.csv", row.names = TRUE)
 
 # Validation
-miRNA_val <- read.table("validation_miRNA_counts.txt", row.names = 1)
-mRNA_val <- read.table("validation_mRNA_counts.txt", row.names = 1)
+# this points to tables where feature extraction has not been performed yet
+
+miRNA_val <- read.table("C:\\Users\\Colle\\OneDrive\\Documents\\Boring\\2021 Summer Internship\\ShanleySummerStudent21\\Early Detection\\ML_input\\validation_miRNA_counts.txt", row.names = 1)
+mRNA_val <- read.table("C:\\Users\\Colle\\OneDrive\\Documents\\Boring\\2021 Summer Internship\\ShanleySummerStudent21\\Early Detection\\ML_input\\validation_mRNA_counts.txt", row.names = 1)
 
 mRNA_val$Samples <- NULL
 
@@ -49,9 +60,9 @@ Data$Samples <- NULL
 res.pca <- prcomp(Data, scale = TRUE)
 fviz_eig(res.pca)
 fviz_pca_ind(res.pca,
-             col.ind = "cos2", 
+             col.ind = "cos2",
              gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
-             repel = TRUE 
+             repel = TRUE
 )
 fviz_pca_var(res.pca,
              col.var = "contrib", # Color by contributions to the PC
@@ -62,7 +73,10 @@ fviz_pca_biplot(res.pca, repel = TRUE,
                 col.var = "#2E9FDF", # Variables color
                 col.ind = "#696969"  # Individuals color
 )
+
+
 # input for ML - validation data
 Data$Samples <- Samples
 Data$Samples <- sub(Data$Samples, pattern = "_2m", replacement = "")
-write.csv(Data, "ML_Data_val.csv", row.names = TRUE)
+write.csv(Data, "C:\\Users\\Colle\\OneDrive\\Documents\\Boring\\2021 Summer Internship\\ShanleySummerStudent21\\Early Detection\\ML_input\\ML_Data_val.csv", row.names = TRUE)
+print("finished")

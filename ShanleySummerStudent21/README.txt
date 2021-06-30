@@ -15,7 +15,7 @@ microRNA expression is also changed. This is important because microRNAs can cir
 Data
 ----
 
-We have 336 (RNAseq and microRNAseq) hippocampus samples from mice aged 2, 6 or 10 months. 
+We have 336 (RNAseq and microRNAseq) cortex samples from mice aged 2, 6 or 10 months.
 
 Samples are from wild type | 20 CAG repeats or fewer.
 Or from mutants | >20 CAG repeats. This includes 80, 92, 111, 140, or 175 repeats. 
@@ -38,6 +38,8 @@ There are four scripts in the /RScripts folder. They should be run in the follow
 1) seperate_Val.R - separates 2 month data from the 6 and 10 month data. This is because we would like to do an early detection based model. Treating the 2 month data as a validation set will stop leakage. Also removed outliers.
 
 2) DE_ML_INPUT_MIRNA.R - performs DE on the microRNA data (6m and 10m). miRs are significantly smaller than mRNAs so it would make sense to run this file before the mRNA DE file.
+# requires R <=2.5.1 for the limma package
+
 
 3) DE_ML_INPUT_MRNA.R - DE on mRNA data (6m and 10m).
 
