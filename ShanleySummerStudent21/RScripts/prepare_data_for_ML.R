@@ -5,17 +5,22 @@
 # code adapted from the archived "Combine_data.R" script
 # Created by: Colleen
 # Created on: 30/06/2021
-
+library(data.table)
 library(factoextra)
+library(dplyr)
+library(tibble)
 ############################################
 # code extracted from DE_ML_Input_mRNA.R
+
 #set working dir
 setwd("C:\\Users\\Colle\\OneDrive\\Documents\\Boring\\2021 Summer Internship\\ShanleySummerStudent21\\Early Detection\\Data")
+
 #load data
-mRNA <- read.csv("mRNA_train.csv", row.names = 1)
+sig_train_mRNA <- read.csv("sig_mRNA_train.csv", row.names = 1)
+
 # colnames(mRNA)
 Pheno <- read.csv("pheno_train.csv", row.names = 1)
-#rename
+#rename to get disease as an extra column HD, ignores sex, includes age
 HD <- sub(Pheno$Name, pattern = "fe", replacement = "")
 HD <- sub(HD, pattern = "male_", replacement = "")
 HD <- sub(HD, pattern = "Q20", replacement = "WT")
@@ -27,16 +32,56 @@ HD <- sub(HD, pattern = "Q92", replacement = "HD")
 #X <- mRNA[apply(mRNA[,-1], 1, function(x) !all(x < 50)),]
 #Y <- X[!rowSums(X == 0) >= 20, , drop = FALSE]
 #Z <- X[which(rownames(X) %in% rownames(Y) == FALSE),]
-m <- mapply(mRNA, FUN=as.integer)
-rownames(m) <- rownames(mRNA)
+m <- mapply(sig_train_mRNA, FUN=as.integer)
+rownames(m) <- rownames(sig_train_mRNA)
+
 # create Conditions file
 Samples <- colnames(m)
 Conditions <- HD
 colData <- cbind(Samples, Conditions)
 rownames(colData) <- colnames(m)
-
+write.csv(colData, file="individual_disease_train.csv")
 print("reached checkpoint")
 ############################################
+# mRNA_ML_data
+train_mRNA_t <- transpose(sig_train_mRNA)
+rownames(train_mRNA_t) <- colnames(sig_train_mRNA)
+colnames(train_mRNA_t) <- rownames(sig_train_mRNA)
+t_mRNA_train <- train_mRNA_t %>%
+  rownames_to_column(var = "Samples")
+
+t_mRNA_train <- as.data.frame(t_mRNA_train)
+colData <- as.data.frame(colData)
+
+# write.csv(t_mRNA_train, file="train_mRNA_t_DELETE LATER.csv")
+
+mRNA_ML_train <- setDT(t_mRNA_train)[setDT(colData), Conditions := i.Conditions, on="Samples"]
+column_to_rownames(mRNA_ML_train, "Samples")
+write.csv(mRNA_ML_train, file="ML_data_ft_selected")
+print("reached next checkpoint")
+####################################################################
+
+############################################
+# miRNA_ML_data
+
+train_miRNA_t <- transpose(sig_train_miRNA)
+rownames(train_miRNA_t) <- colnames(sig_train_miRNA)
+colnames(train_miRNA_t) <- rownames(sig_train_miRNA)
+t_miRNA_train <- train_miRNA_t %>%
+  rownames_to_column(var = "Samples")
+
+t_miRNA_train <- as.data.frame(t_miRNA_train)
+colData <- as.data.frame(colData)
+
+# write.csv(t_mRNA_train, file="train_mRNA_t_DELETE LATER.csv")
+
+miRNA_ML_train <- setDT(t_miRNA_train)[setDT(colData), Conditions := i.Conditions, on="Samples"]
+miRNA_ML_train <-  column_to_rownames(miRNA_ML_train, "Samples")
+write.csv(miRNA_ML_train, file="miRNA_ML_data.csv")
+
+
+#####################################################################
+q()
 setwd("C:\\Users\\Colle\\OneDrive\\Documents\\Boring\\2021 Summer Internship\\ShanleySummerStudent21\\Early Detection\\ML_input")
 miRNA <- read.csv("../../InputForRFiltering/sig_miRNA_counts.csv", row.names = 1)
 colnames(miRNA) <- gsub(colnames(miRNA), pattern = "\\.", replacement = "-")

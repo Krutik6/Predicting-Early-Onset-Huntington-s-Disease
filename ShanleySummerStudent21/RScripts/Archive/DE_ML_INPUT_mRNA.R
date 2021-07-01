@@ -11,8 +11,12 @@ mRNA <- read.csv("mRNA_train.csv", row.names = 1)
 # colnames(mRNA)
 Pheno <- read.csv("pheno_train.csv", row.names = 1)
 #rename
+
+#ignores sex
 HD <- sub(Pheno$Name, pattern = "fe", replacement = "")
 HD <- sub(HD, pattern = "male_", replacement = "")
+
+#labells WT or HD
 HD <- sub(HD, pattern = "Q20", replacement = "WT")
 HD <- sub(HD, pattern = "Q111", replacement = "HD")
 HD <- sub(HD, pattern = "Q140", replacement = "HD")
