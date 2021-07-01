@@ -23,6 +23,8 @@ Pheno <- read.csv("pheno_train.csv", row.names = 1)
 #rename to get disease as an extra column HD, ignores sex, includes age
 HD <- sub(Pheno$Name, pattern = "fe", replacement = "")
 HD <- sub(HD, pattern = "male_", replacement = "")
+HD <- sub(HD, pattern = "_6m", replacement = "")
+HD <- sub(HD, pattern = "_10m", replacement = "")
 HD <- sub(HD, pattern = "Q20", replacement = "WT")
 HD <- sub(HD, pattern = "Q111", replacement = "HD")
 HD <- sub(HD, pattern = "Q140", replacement = "HD")
@@ -35,126 +37,85 @@ HD <- sub(HD, pattern = "Q92", replacement = "HD")
 m <- mapply(sig_train_mRNA, FUN=as.integer)
 rownames(m) <- rownames(sig_train_mRNA)
 
-# create Conditions file
+# create file linking individual to phenotype
 Samples <- colnames(m)
 Conditions <- HD
 colData <- cbind(Samples, Conditions)
 rownames(colData) <- colnames(m)
 write.csv(colData, file="individual_disease_train.csv")
-print("reached checkpoint")
 ############################################
-# mRNA_ML_data
-train_mRNA_t <- transpose(sig_train_mRNA)
-rownames(train_mRNA_t) <- colnames(sig_train_mRNA)
-colnames(train_mRNA_t) <- rownames(sig_train_mRNA)
-t_mRNA_train <- train_mRNA_t %>%
-  rownames_to_column(var = "Samples")
+# Transform RNAs into a form ready for ML
 
-t_mRNA_train <- as.data.frame(t_mRNA_train)
-colData <- as.data.frame(colData)
+transform_for_ml <- function(RNA_data, file_name)
+{
+  RNA_t <- transpose(RNA_data)
+  rownames(RNA_t) <- colnames(RNA_data)
+  colnames(RNA_t) <- rownames(RNA_data)
+  t_RNA <- RNA_t %>%
+    rownames_to_column(var = "Samples")
 
-# write.csv(t_mRNA_train, file="train_mRNA_t_DELETE LATER.csv")
+  t_RNA <- as.data.frame(t_RNA)
+  colData <- as.data.frame(colData)
 
-mRNA_ML_train <- setDT(t_mRNA_train)[setDT(colData), Conditions := i.Conditions, on="Samples"]
-column_to_rownames(mRNA_ML_train, "Samples")
-write.csv(mRNA_ML_train, file="ML_data_ft_selected")
-print("reached next checkpoint")
-####################################################################
+  # write.csv(t_mRNA_train, file="train_mRNA_t_DELETE LATER.csv")
 
-############################################
-# miRNA_ML_data
+  RNA_ML <- setDT(t_RNA)[setDT(colData), Conditions := i.Conditions, on="Samples"]
+  RNA_ML <-  column_to_rownames(RNA_ML, "Samples")
+  loc <-"C:\\Users\\Colle\\OneDrive\\Documents\\Boring\\2021 Summer Internship\\ShanleySummerStudent21\\InputForML\\"
 
-train_miRNA_t <- transpose(sig_train_miRNA)
-rownames(train_miRNA_t) <- colnames(sig_train_miRNA)
-colnames(train_miRNA_t) <- rownames(sig_train_miRNA)
-t_miRNA_train <- train_miRNA_t %>%
-  rownames_to_column(var = "Samples")
+  f <- paste(loc,file_name,".csv", sep="")
+  write.csv(RNA_ML, file=f)
+  print(paste("saved ", f))
 
-t_miRNA_train <- as.data.frame(t_miRNA_train)
-colData <- as.data.frame(colData)
+}
 
-# write.csv(t_mRNA_train, file="train_mRNA_t_DELETE LATER.csv")
+s_train_mRNA <- read.csv("sig_mRNA_train.csv", row.names = 1)
+s_train_miRNA <- read.csv("sig_miRNA_train.csv", row.names = 1)
+s_validate_mRNA <- read.csv("sig_mRNA_validate.csv", row.names = 1)
+s_validate_miRNA <- read.csv("sig_miRNA_validate.csv", row.names = 1)
 
-miRNA_ML_train <- setDT(t_miRNA_train)[setDT(colData), Conditions := i.Conditions, on="Samples"]
-miRNA_ML_train <-  column_to_rownames(miRNA_ML_train, "Samples")
-write.csv(miRNA_ML_train, file="miRNA_ML_data.csv")
+RNAs <- list(s_train_mRNA, s_train_miRNA, s_validate_mRNA, s_validate_miRNA)
+file_names <- c("ML_data_train_mRNA", "ML_data_train_miRNA", "ML_data_validate_mRNA", "ML_data_validate_miRNA")
 
+
+i <- 0
+for (rna in RNAs){
+  i <- i+1
+  transform_for_ml(rna, file_names[i])
+}
 
 #####################################################################
-q()
-setwd("C:\\Users\\Colle\\OneDrive\\Documents\\Boring\\2021 Summer Internship\\ShanleySummerStudent21\\Early Detection\\ML_input")
-miRNA <- read.csv("../../InputForRFiltering/sig_miRNA_counts.csv", row.names = 1)
-colnames(miRNA) <- gsub(colnames(miRNA), pattern = "\\.", replacement = "-")
-mRNA <- read.csv("../../InputForRFiltering/sig_mRNA_counts.csv", row.names = 1)
-
-#mRNA <- mRNA[which(rownames(mRNA) %in% rownames(miRNA)),]
-#miRNA <- miRNA[which(rownames(miRNA) %in% rownames(mRNA)),]
-mRNA$Samples <- NULL
 
 intersect(rownames(mRNA), rownames(miRNA))
 # consider if you want to combine the datasets or not, then debug this line if wishing to combine
-Data <- cbind(mRNA, miRNA)
-Samples <- Data$Samples
-Data$Samples <- NULL
+# Data <- cbind(mRNA, miRNA)
+plot_pca <- function(Data){
+  Samples <- Data$Samples
+  Data$Samples <- NULL
 
-res.pca <- prcomp(Data, scale = TRUE)
-fviz_eig(res.pca)
-# if recieve error "Viewport has zero dimension(s)" increase width of plot window
-fviz_pca_ind(res.pca,
-             col.ind = "cos2",
-             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
-             repel = TRUE
-)
-fviz_pca_var(res.pca,
-             col.var = "contrib", # Color by contributions to the PC
-             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
-             repel = TRUE     # Avoid text overlapping
-)
-fviz_pca_biplot(res.pca, repel = TRUE,
-                col.var = "#2E9FDF", # Variables color
-                col.ind = "#696969"  # Individuals color
-)
-# input for ML - training data
+  res.pca <- prcomp(Data, scale = TRUE)
+  fviz_eig(res.pca)
+  # if recieve error "Viewport has zero dimension(s)" increase width of plot window
+  fviz_pca_ind(res.pca,
+               col.ind = "cos2",
+               gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+               repel = TRUE
+  )
+  fviz_pca_var(res.pca,
+               col.var = "contrib", # Color by contributions to the PC
+               gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+               repel = TRUE     # Avoid text overlapping
+  )
+  fviz_pca_biplot(res.pca, repel = TRUE,
+                  col.var = "#2E9FDF", # Variables color
+                  col.ind = "#696969"  # Individuals color
+  )
+  print("i executed")
+  }
 
-Data$Samples <- Samples
-
-# I am lazy
-
-Data$Samples <- sub(Data$Samples, pattern = "_10m", replacement = "")
-Data$Samples <- sub(Data$Samples, pattern = "_6m", replacement = "")
-
-
-write.csv(Data, "../../Early Detection/ML_input/ML_Data.csv", row.names = TRUE)
-
-# Validation
-miRNA_val <- read.table("../../Early Detection/ML_input/validation_miRNA_counts.txt", row.names = 1)
-mRNA_val <- read.table("../../Early Detection/ML_input/validation_mRNA_counts.txt", row.names = 1)
-
-mRNA_val$Samples <- NULL
-
-intersect(rownames(mRNA_val), rownames(miRNA_val))
-Data <- cbind(mRNA_val, miRNA_val)
-Samples <- Data$Samples
-Data$Samples <- NULL
-
-res.pca <- prcomp(Data, scale = TRUE)
-fviz_eig(res.pca)
-fviz_pca_ind(res.pca,
-             col.ind = "cos2",
-             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
-             repel = TRUE
-)
-fviz_pca_var(res.pca,
-             col.var = "contrib", # Color by contributions to the PC
-             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
-             repel = TRUE     # Avoid text overlapping
-)
-fviz_pca_biplot(res.pca, repel = TRUE,
-                col.var = "#2E9FDF", # Variables color
-                col.ind = "#696969"  # Individuals color
-)
-# input for ML - validation data
-Data$Samples <- Samples
-Data$Samples <- sub(Data$Samples, pattern = "_2m", replacement = "")
-write.csv(Data, "../../Early Detection/ML_input/ML_Data_val.csv", row.names = TRUE)
-print("finished")
+i <- 0
+for (rna in RNAs){
+  # todo plot pca should produce figures -> does the input need to be coupled?
+  i <- i+1
+  plot_pca(rna)
+}
