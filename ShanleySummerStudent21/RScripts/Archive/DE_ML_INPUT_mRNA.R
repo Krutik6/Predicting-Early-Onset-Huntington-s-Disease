@@ -8,7 +8,7 @@ library(factoextra)
 setwd("C:\\Users\\Colle\\OneDrive\\Documents\\Boring\\2021 Summer Internship\\ShanleySummerStudent21\\Early Detection\\Data")
 #load data
 mRNA <- read.csv("mRNA_train.csv", row.names = 1)
-colnames(mRNA)
+# colnames(mRNA)
 Pheno <- read.csv("pheno_train.csv", row.names = 1)
 #rename
 HD <- sub(Pheno$Name, pattern = "fe", replacement = "")
@@ -126,6 +126,7 @@ HD <- sub(HD, pattern = "Q175", replacement = "HD")
 HD <- sub(HD, pattern = "Q80", replacement = "HD")
 HD <- sub(HD, pattern = "Q92", replacement = "HD")
 
+# transforms mRNA_v to int
 m <- mapply(mRNA_v, FUN=as.integer)
 rownames(m) <- rownames(mRNA_v)
 

@@ -33,7 +33,7 @@ fviz_pca_biplot(res.pca, repel = TRUE,
 Data$Samples <- Samples
 Data$Samples <- sub(Data$Samples, pattern = "_10m", replacement = "")
 Data$Samples <- sub(Data$Samples, pattern = "_6m", replacement = "")
-write.csv(Data, "../../Early Detection/ML_input/ML_Data.csv", row.names = TRUE)
+write.csv(Data, "../../Early Detection/ML_input/DE_ML_Data.csv", row.names = TRUE)
 
 # Validation
 miRNA_val <- read.table("../../Early Detection/ML_input/validation_miRNA_counts.txt", row.names = 1)
@@ -65,5 +65,5 @@ fviz_pca_biplot(res.pca, repel = TRUE,
 # input for ML - validation data
 Data$Samples <- Samples
 Data$Samples <- sub(Data$Samples, pattern = "_2m", replacement = "")
-write.csv(Data, "../../Early Detection/ML_input/ML_Data_val.csv", row.names = TRUE)
+write.csv(Data, "../../Early Detection/ML_input/DE_ML_Data_val.csv", row.names = TRUE)
 print("finished")

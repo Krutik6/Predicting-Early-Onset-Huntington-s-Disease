@@ -4,8 +4,10 @@ library(testthat)
 
 setwd("C:\\Users\\Colle\\OneDrive\\Documents\\Boring\\2021 Summer Internship\\ShanleySummerStudent21\\InputForRFiltering")
 # import data
-miRNA <- read.csv("miRNA_counts.csv", row.names = 1)
-mRNA <- read.csv("mRNA_counts.csv", row.names = 1)
+miRNA <- read.csv("sig_miRNA_counts.csv", row.names = 1)
+mRNA <- read.csv("sig_mRNA_counts.csv", row.names = 1)
+
+# not dealing with phenotypes for now but code can remain for future use
 Pheno_miRNA <- read.csv("miRNA_Pheno.csv", row.names = 1)
 Pheno_mRNA <- read.csv("mRNA_Pheno.csv")
 ############################################################
@@ -69,5 +71,6 @@ write.csv(miRNA_train, "miRNA_train.csv")
 write.csv(miRNA_val, "miRNA_validation.csv")
 write.csv(Pheno_mRNA_train, "pheno_train.csv")
 write.csv(Pheno_mRNA_val, "pheno_validation.csv")
-print("saved")
+
+print("completed separation and outlier removal")
 
