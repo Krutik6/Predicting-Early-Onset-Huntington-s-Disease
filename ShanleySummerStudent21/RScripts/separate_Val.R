@@ -4,6 +4,7 @@ library(testthat)
 
 setwd("C:\\Users\\Colle\\OneDrive\\Documents\\Boring\\2021 Summer Internship\\ShanleySummerStudent21\\InputForRFiltering")
 # import data
+# todo if starting w this script, needs to start w counts, not sigcounts
 miRNA <- read.csv("sig_miRNA_counts.csv", row.names = 1)
 mRNA <- read.csv("sig_mRNA_counts.csv", row.names = 1)
 

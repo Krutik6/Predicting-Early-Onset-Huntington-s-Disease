@@ -1,4 +1,16 @@
 import os
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+import sklearn
+from sklearn import metrics, datasets, neighbors
+
+import sys
+import warnings
+import itertools
+warnings.filterwarnings("ignore")
+np.set_printoptions(precision=2)
 
 # Global variables are always in caps, to distinguish them from local variables.
 WORKING_DIRECTORY = os.path.dirname(__file__)
@@ -24,3 +36,12 @@ plotAlg = True
 crossVal = True
 confusionMatrix = True
 RobustML = False
+
+def get_X_y(df):
+    X = df.loc[:, df.columns != 'Conditions']
+    X = X.loc[:, X.columns != "Unnamed: 0"]
+    y = df.loc[:, df.columns == 'Conditions']
+    return X, y
+
+def scoreModel():
+    pass
