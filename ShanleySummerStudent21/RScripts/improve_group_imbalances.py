@@ -3,7 +3,7 @@ There are clear differences between the number of HD, and WT mice. This can be a
 
 """
 
-from imblearn.over_sampling import BorderlineSMOTE
+from imblearn.over_sampling import SVMSMOTE
 from collections import Counter
 from pandas import read_csv
 from varname import nameof
@@ -14,8 +14,8 @@ from ML import *
 
 def perform_smote(RNA, X_file_name, y_file_name):
     X, y = get_X_y(RNA)
-    # todo change to svm smote
-    X_resampled, y_resampled = BorderlineSMOTE().fit_resample(X, y)
+    X= X.drop(columns ="Samples")
+    X_resampled, y_resampled = SVMSMOTE().fit_resample(X, y)
     # save files
     loc = "../InputForML/SMOTE/{}.csv"
 
@@ -23,10 +23,10 @@ def perform_smote(RNA, X_file_name, y_file_name):
     y_resampled.to_csv(loc.format(y_file_name))
     print("saved", X_file_name, y_file_name)
 
-train_mRNA = read_csv("../InputForML/ML_data_train_mRNA.csv")
-train_miRNA = read_csv("../InputForML/ML_data_train_miRNA.csv")
-validate_mRNA = read_csv("../InputForML/ML_data_validate_mRNA.csv")
-validate_miRNA = read_csv("../InputForML/ML_data_validate_miRNA.csv")
+train_mRNA = read_csv("../Early Detection/Data/FilteredData/mRNA_train.csv")
+train_miRNA = read_csv("../Early Detection/Data/FilteredData/miRNA_train.csv")
+validate_mRNA = read_csv("../Early Detection/Data/FilteredData/mRNA_validation.csv")
+validate_miRNA = read_csv("../Early Detection/Data/FilteredData/miRNA_validation.csv")
 
 RNAs = [train_mRNA, train_miRNA, validate_mRNA, validate_miRNA]
 RNA_labs = ["train_mRNA", "train_miRNA", "validate_mRNA", "validate_miRNA"]

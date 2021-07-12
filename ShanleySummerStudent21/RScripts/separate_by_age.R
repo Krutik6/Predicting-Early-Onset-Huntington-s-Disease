@@ -4,9 +4,9 @@ library(testthat)
 
 setwd("C:\\Users\\Colle\\OneDrive\\Documents\\Boring\\2021 Summer Internship\\ShanleySummerStudent21\\InputForRFiltering")
 # import data
-
-miRNA <- read.csv("miRNA_counts.csv", row.names = 1)
-mRNA <- read.csv("mRNA_counts.csv", row.names = 1)
+# todo if starting w this script, needs to start w counts, not sigcounts
+miRNA <- read.csv("sig_miRNA_counts.csv", row.names = 1)
+mRNA <- read.csv("sig_mRNA_counts.csv", row.names = 1)
 
 # not dealing with phenotypes for now but code can remain for future use
 Pheno_miRNA <- read.csv("miRNA_Pheno.csv", row.names = 1)
@@ -64,7 +64,7 @@ which(colnames(mRNA_val) %in% colnames(miRNA_val) == FALSE)
 
 # save files
 
-setwd("C:\\Users\\Colle\\OneDrive\\Documents\\Boring\\2021 Summer Internship\\ShanleySummerStudent21\\Early Detection\\Data\\Separated_Data\\")
+setwd("C:\\Users\\Colle\\OneDrive\\Documents\\Boring\\2021 Summer Internship\\ShanleySummerStudent21\\Early Detection\\Data")
 
 write.csv(mRNA_train, "mRNA_train.csv")
 write.csv(mRNA_val,"mRNA_validation.csv")
