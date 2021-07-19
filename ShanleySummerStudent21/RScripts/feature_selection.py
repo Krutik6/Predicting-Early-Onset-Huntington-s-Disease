@@ -47,8 +47,8 @@ def recursive_ft(X,y, pickle_name, RNA_type):
                   scoring='accuracy',
                   min_features_to_select=min_features_to_select)
 
-    X_new= X.iloc[: , 1:]
-    rfecv.fit(X_new, y)
+
+    rfecv.fit(X, y)
 
     print("Optimal number of features : %d" % rfecv.n_features_)
 
@@ -72,10 +72,10 @@ def recursive_ft(X,y, pickle_name, RNA_type):
     # plt.show()
 
     dset = pd.DataFrame()
-    X1 = pd.DataFrame(X_new)
+    X1 = pd.DataFrame(X)
     dset['attr'] = X1.columns
     # drop the unnecessary "samples" header
-    dset = dset.iloc[1: , :]
+    #dset = dset.drop(columns = "Samples")
 
     dset['importance'] = rfecv.ranking_
 
@@ -110,13 +110,13 @@ def continue_from_rfecv(file_name, RNA_type, X):
     name = loc+"finding_optimal_features_"+RNA_type+".png"
     plt.savefig(name)
 
-    # plt.show()
 
     dset = pd.DataFrame()
     X1 = pd.DataFrame(X)
+    # todo this minus the chi squared columns
     dset['attr'] = X1.columns
     # drop the unnecessary "samples" header
-    dset = dset.iloc[1: , :]
+    #dset = dset.drop(columns="Samples")
 
     dset['importance'] = rfecv.ranking_
 
@@ -141,8 +141,8 @@ def tidy_data(filtered, original, conditions):
     # join names from original onto filtered
     samples = original.Samples
     s = pd.DataFrame({"Samples": samples})
-    filtered = filtered.iloc[: , 1:]
-    # todo, make Samples the first column
+
+    #filtered = filtered.iloc[: , 1:]
     named = filtered.join(samples)
     combined = named.join(conditions)
     return combined
@@ -154,12 +154,15 @@ def run():
     chdir(dir)
 
     loc = r"../FilteredData/"
+    """
     #mRNA----------------------------------------------
     mRNA = pd.read_csv("mRNA_train.csv")
     X,y = get_X_y(mRNA)
     X_new = filter_method(X,y)
     # un comment this line if re-generating rfe
-    # recursive_ft(X_new,y, "mRNA_rfe", "mRNA")
+    #recursive_ft(X_new,y, "mRNA_rfe", "mRNA")
+    print("mrna completttt")
+
     mRNA_data, mRNAs = continue_from_rfecv("mRNA_rfe.pickle", "mRNA", X_new)
 
     mRNAs_comb = tidy_data(mRNA_data, X, y)
@@ -178,7 +181,8 @@ def run():
     X,y = get_X_y(miRNA)
     X_new = filter_method(X,y)
     # un comment this line if re-generating rfe
-    # recursive_ft(X_new,y, "mRNA_rfe", "mRNA")
+    #recursive_ft(X_new,y, "miRNA_rfe", "miRNA")
+    print("pickled this mofo")
     miRNA_data, miRNAs = continue_from_rfecv("miRNA_rfe.pickle", "miRNA", X_new)
 
     miRNAs_comb = tidy_data(miRNA_data, X, y)
@@ -191,6 +195,26 @@ def run():
     X,y = get_X_y(miRNA_validation)
     miRNAs_vals_comb = tidy_data(miRNA_val_filtered, X, y)
     miRNAs_vals_comb.to_csv((loc+"miRNA_validation.csv"))
+    """
+    ##############################################################################
+    # age data
+    for filename in glob.glob('*_[0-9]*m.csv'):
+        with open(os.path.join(os.getcwd(), filename), 'r') as f:
+            name =filename.replace(".csv", "")
+            print(name)
+
+            RNA = pd.read_csv(filename)
+            X,y = get_X_y(RNA)
+            X_new = filter_method(X,y)
+            # un comment this line if re-generating rfe
+            recursive_ft(X_new,y, (name+"_rfe"), "mRNA")
+
+            RNA_data, RNAs = continue_from_rfecv((name+"_rfe.pickle"), name, X_new)
+
+            RNAs_comb = tidy_data(RNA_data, X, y)
+            RNAs_comb.to_csv((loc+filename))
+            print(name, "is complete")
+
 
 run()
 ############################################################

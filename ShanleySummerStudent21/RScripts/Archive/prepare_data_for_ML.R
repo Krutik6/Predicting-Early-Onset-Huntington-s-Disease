@@ -1,6 +1,6 @@
 # Title     : Prepare data for ML
 # Objective : Transforms the data ready for processing by the classifier
-# todo decide if combining mRNA, miRNA data or keeping separate
+
 # currently this also combines mRNA, and miRNA data
 # code adapted from the archived "Combine_data.R" script
 # Created by: Colleen
@@ -14,16 +14,11 @@ library(tibble)
 # code extracted from DE_ML_Input_mRNA.R
 
 #set working dir
-setwd("C:\\Users\\Colle\\OneDrive\\Documents\\Boring\\2021 Summer Internship\\ShanleySummerStudent21\\Early Detection\\Data")
-
-#load data
-sig_train_mRNA <- read.csv("sig_mRNA_train.csv", row.names = 1)
-sig_val_mRNA <- read.csv("sig_mRNA_validate.csv", row.names = 1)
+setwd("C:\\Users\\Colle\\OneDrive\\Documents\\Boring\\2021 Summer Internship\\ShanleySummerStudent21\\Early Detection\\Data\\Separated_Data\\")
 
 
 getColnames <- function(RNA_df){
   #rename to get disease as an extra column HD, ignores sex, includes age
-  #todo remove the repeats _1R - _4R
   HD <- sub(colnames(RNA_df), pattern = "fe", replacement = "")
   HD <- sub(HD, pattern = "male_", replacement = "")
   HD <- sub(HD, pattern = "_2m", replacement = "")
@@ -66,7 +61,7 @@ transform_for_ml <- function(RNA_data, file_name, colData)
   rownames(RNA_t) <- colnames(RNA_data)
   colnames(RNA_t) <- rownames(RNA_data)
 
-  write.csv(RNA_t, "RNA_t.csv")
+  write.csv(RNA_t, "../../Early Detection/Data/Separated_Data/RNA_t.csv")
 
   t_RNA <- RNA_t %>%
     rownames_to_column(var = "Samples")
@@ -95,10 +90,10 @@ transform_for_ml <- function(RNA_data, file_name, colData)
 
 }
 
-s_train_mRNA <- read.csv("sig_mRNA_train.csv", row.names = 1)
-s_train_miRNA <- read.csv("sig_miRNA_train.csv", row.names = 1)
-s_validate_mRNA <- read.csv("sig_mRNA_validate.csv", row.names = 1)
-s_validate_miRNA <- read.csv("sig_miRNA_validate.csv", row.names = 1)
+s_train_mRNA <- read.csv("../../Early Detection/Data/Separated_Data/mRNA_train.csv", row.names = 1)
+s_train_miRNA <- read.csv("../../Early Detection/Data/Separated_Data/miRNA_train.csv", row.names = 1)
+s_validate_mRNA <- read.csv("../../Early Detection/Data/Separated_Data/mRNA_validation.csv", row.names = 1)
+s_validate_miRNA <- read.csv("../../Early Detection/Data/Separated_Data/miRNA_validation.csv", row.names = 1)
 
 RNAs <- list(s_train_mRNA, s_train_miRNA, s_validate_mRNA, s_validate_miRNA)
 file_names <- c("ML_data_train_mRNA", "ML_data_train_miRNA", "ML_data_validate_mRNA", "ML_data_validate_miRNA")
@@ -117,41 +112,6 @@ for (rna in RNAs){
   transform_for_ml(rna, file_names[i], col[[1]])
 }
 
-#####################################################################
-
-#intersect(rownames(mRNA), rownames(miRNA))
-# consider if you want to combine the datasets or not, then debug this line if wishing to combine
-# Data <- cbind(mRNA, miRNA)
-plot_pca <- function(Data){
-  Samples <- Data$Samples
-  Data$Samples <- NULL
-
-  res.pca <- prcomp(Data, scale = TRUE)
-  fviz_eig(res.pca)
-  # if recieve error "Viewport has zero dimension(s)" increase width of plot window
-  fviz_pca_ind(res.pca,
-               col.ind = "cos2",
-               gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
-               repel = TRUE
-  )
-  fviz_pca_var(res.pca,
-               col.var = "contrib", # Color by contributions to the PC
-               gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
-               repel = TRUE     # Avoid text overlapping
-  )
-  fviz_pca_biplot(res.pca, repel = TRUE,
-                  col.var = "#2E9FDF", # Variables color
-                  col.ind = "#696969"  # Individuals color
-  )
-  print("i executed")
-  }
-
-i <- 0
-for (rna in RNAs){
-  # todo plot pca should produce figures -> does the input need to be coupled?
-  i <- i+1
-  plot_pca(rna)
-}
 
 print("finished")
 

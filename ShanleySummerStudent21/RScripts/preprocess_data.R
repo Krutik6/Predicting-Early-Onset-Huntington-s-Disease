@@ -60,7 +60,6 @@ transform_for_ml <- function(RNA_data, file_name, colData)
   #write.csv(RNA_t, "transposed_deleteme")
   rownames(RNA_t) <- colnames(RNA_data)
   colnames(RNA_t) <- rownames(RNA_data)
-  write.csv(RNA_t, "../../Early Detection/Data/RNA_t.csv")
   t_RNA <- RNA_t %>%
     rownames_to_column(var = "Samples")
   t_RNA <- as.data.frame(t_RNA)
@@ -80,12 +79,15 @@ transform_for_ml <- function(RNA_data, file_name, colData)
 
 }
 
-setwd("C:\\Users\\Colle\\OneDrive\\Documents\\Boring\\2021 Summer Internship\\ShanleySummerStudent21\\Early Detection\\Data")
+setwd("C:\\Users\\Colle\\OneDrive\\Documents\\Boring\\2021 Summer Internship\\ShanleySummerStudent21\\Early Detection\\Data\\Separated_Data")
 
-mRNA_train <- read.csv("../../Early Detection/Data/mRNA_train.csv")
-mRNA_validation <- read.csv("../../Early Detection/Data/mRNA_validation.csv")
-miRNA_train <- read.csv("../../Early Detection/Data/miRNA_train.csv")
-miRNA_validation<- read.csv("../../Early Detection/Data/miRNA_validation.csv")
+mRNA_train <- read.csv("mRNA_train.csv")
+mRNA_validation <- read.csv("mRNA_validation.csv")
+miRNA_train <- read.csv("miRNA_train.csv")
+miRNA_validation<- read.csv("miRNA_validation.csv")
+
+
+setwd("C:\\Users\\Colle\\OneDrive\\Documents\\Boring\\2021 Summer Internship\\ShanleySummerStudent21\\Early Detection\\Data\\")
 
 col_mRNA_train <- getColnames(mRNA_train)
 col_mRNA_validation <- getColnames(mRNA_validation)
@@ -100,4 +102,25 @@ transform_for_ml(miRNA_validation, "miRNA_validation", col_miRNA_validation)
 
 #####################################################################
 
+setwd("C:\\Users\\Colle\\OneDrive\\Documents\\Boring\\2021 Summer Internship\\ShanleySummerStudent21\\Early Detection\\Data\\Separated_Data\\age\\")
+miRNA_2m <- read.csv("miRNA_2m.csv")
+miRNA_6m <- read.csv("miRNA_6m.csv")
+miRNA_10m <- read.csv("miRNA_10m.csv")
+
+mRNA_2m <- read.csv("mRNA_2m.csv")
+mRNA_6m <- read.csv("mRNA_6m.csv")
+mRNA_10m <- read.csv("mRNA_10m.csv")
+
+rnas <- list(miRNA_2m, miRNA_6m, miRNA_10m, mRNA_2m, mRNA_6m, mRNA_10m)
+nrnas <- list("miRNA_2m", "miRNA_6m", "miRNA_10m", "mRNA_2m", "mRNA_6m", "mRNA_10m")
+
+i <- 0
+for (rna in rnas){
+  i<- i+1
+  col <- getColnames(rna)
+  transform_for_ml(rna, nrnas[i], col)
+}
+
+
+#####################################################################
 print("finished")

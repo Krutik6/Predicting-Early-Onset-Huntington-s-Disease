@@ -4,9 +4,9 @@ library(testthat)
 
 setwd("C:\\Users\\Colle\\OneDrive\\Documents\\Boring\\2021 Summer Internship\\ShanleySummerStudent21\\InputForRFiltering")
 # import data
-# todo if starting w this script, needs to start w counts, not sigcounts
-miRNA <- read.csv("sig_miRNA_counts.csv", row.names = 1)
-mRNA <- read.csv("sig_mRNA_counts.csv", row.names = 1)
+
+miRNA <- read.csv("miRNA_counts.csv", row.names = 1)
+mRNA <- read.csv("mRNA_counts.csv", row.names = 1)
 
 # not dealing with phenotypes for now but code can remain for future use
 Pheno_miRNA <- read.csv("miRNA_Pheno.csv", row.names = 1)
@@ -43,35 +43,27 @@ Pheno_miRNA$HD <- HD
 Pheno_mRNA$HD <- HD
 #########################################################
 # Separate 2m and 6,10m data
-mRNA_train <- mRNA %>% select(-contains("2m"))
-miRNA_train <- miRNA %>% select(-contains("2m"))
-Pheno_mRNA_train <- Pheno_mRNA %>% filter(!grepl('2m', age))
-Pheno_miRNA_train <- Pheno_miRNA %>% filter(!grepl('2m', AGE))
+mRNA_2m <- mRNA %>% select(contains("2m"))
+miRNA_2m <- miRNA %>% select(-contains("2m"))
 
-mRNA_val <- mRNA %>% select(contains("2m"))
-miRNA_val <- miRNA %>% select(contains("2m"))
-Pheno_mRNA_val <- Pheno_mRNA %>% filter(grepl('2m', age))
-Pheno_miRNA_val <- Pheno_miRNA %>% filter(grepl('2m', AGE))
+mRNA_6m <- mRNA %>% select(contains("6m"))
+miRNA_6m <- miRNA %>% select(-contains("6m"))
+
+mRNA_10m <- mRNA %>% select(contains("10m"))
+miRNA_10m <- miRNA %>% select(contains("10m"))
+
 #########################################################
-# check if equal
-which(colnames(mRNA_train) %in% colnames(miRNA_train) == FALSE)
-
-
-# expect_equal(colnames(mRNA_train), colnames(miRNA_train))
-colnames(mRNA_train[c(57:67)]) # expected differences
-colnames(miRNA_train[c(57:67)])
-which(colnames(mRNA_val) %in% colnames(miRNA_val) == FALSE)
 
 # save files
 
-setwd("C:\\Users\\Colle\\OneDrive\\Documents\\Boring\\2021 Summer Internship\\ShanleySummerStudent21\\Early Detection\\Data")
+setwd("C:\\Users\\Colle\\OneDrive\\Documents\\Boring\\2021 Summer Internship\\ShanleySummerStudent21\\Early Detection\\Data\\Separated_Data\\age\\")
 
-write.csv(mRNA_train, "mRNA_train.csv")
-write.csv(mRNA_val,"mRNA_validation.csv")
-write.csv(miRNA_train, "miRNA_train.csv")
-write.csv(miRNA_val, "miRNA_validation.csv")
-write.csv(Pheno_mRNA_train, "pheno_train.csv")
-write.csv(Pheno_mRNA_val, "pheno_validation.csv")
+write.csv(mRNA_2m, "mRNA_2m.csv")
+write.csv(miRNA_2m,"miRNA_2m.csv")
+write.csv(mRNA_6m, "mRNA_6m.csv")
+write.csv(miRNA_6m, "miRNA_6m.csv")
+write.csv(mRNA_10m, "mRNA_10m.csv")
+write.csv(miRNA_10m, "miRNA_10m.csv")
 
-print("completed separation and outlier removal")
+print("completed separation by age")
 

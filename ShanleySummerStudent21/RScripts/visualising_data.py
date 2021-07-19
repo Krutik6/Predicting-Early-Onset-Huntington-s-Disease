@@ -9,8 +9,14 @@ This script aids visualisation at each stage in the code pipeline
 """
 
 def visualise(x,df, fname):
+    loc = r"C:\\Users\\Colle\\OneDrive\\Documents\\Boring\\2021 Summer Internship\\ShanleySummerStudent21\\Early Detection\\Data\\Figures\\Data_Exploration\\"
+
     x = x.drop(columns = "Samples")
-    features = x.columns
+
+    # PCA can't be performed on one feature
+    if len(x.columns) == 1:
+        pair_plots(df, loc, fname)
+        return False
 
     # Standardizing the features
     x = StandardScaler().fit_transform(x)
@@ -38,7 +44,7 @@ def visualise(x,df, fname):
                    , s = 50)
     ax.legend(targets)
     ax.grid()
-    loc = r"C:\\Users\\Colle\\OneDrive\\Documents\\Boring\\2021 Summer Internship\\ShanleySummerStudent21\\Early Detection\\Data\\Figures\\Data_Exploration\\"
+
     fig.savefig((loc+"PCA_{}.png".format(fname)))
     print("saved", "PCA_{}.png".format(fname), "in", loc)
     pair_plots(df, loc, fname)
@@ -47,13 +53,32 @@ def pair_plots(df, loc, fname):
     sns.set_style("whitegrid");
     df = df.drop(columns="Samples")
     df = df.drop(columns="Unnamed: 0")
-    fig = sns.pairplot(df, hue="Conditions", size=3);
+    fig = sns.pairplot(df, hue="Conditions")
+    print("reached")
     fig.savefig((loc+"pair_plot_{}.png".format(fname)))
     print("saved", "pair_plot_{}.png".format(fname), "in", loc)
+
+def box_plot(df,loc ,fname):
+    df = prepare_for_box_plot(df)
+    sns.set_theme(style="ticks", palette="pastel")
+    y=sns.scatterplot(x="variable", y="value", hue = "Conditions",palette=["m", "g"], data=df)
+    #sns.despine(offset=10, trim=True)
+    #y.legend([],[], frameon=False)
+    y.figure.savefig((loc+"scatter_{}.png".format(fname)))
+
+
+
+def prepare_for_box_plot(df):
+    con = df["Conditions"]
+    df = df.drop(columns=["Unnamed: 0", "Samples", "Conditions"])
+    m = df.melt(ignore_index=False)
+    merged = m.merge(con, left_index=True, right_index=True)
+    return merged
 
 dir = r"C:\\Users\\Colle\\OneDrive\\Documents\\Boring\\2021 Summer Internship\\ShanleySummerStudent21\\Early Detection\\Data\\FilteredData\\"
 os.chdir(dir)
 
+loc = r"C:\\Users\\Colle\\OneDrive\\Documents\\Boring\\2021 Summer Internship\\ShanleySummerStudent21\\Early Detection\\Data\\Figures\\Data_Exploration\\"
 
 for filename in os.listdir(os.getcwd()):
     with open(os.path.join(os.getcwd(), filename), 'r') as f:
@@ -61,11 +86,12 @@ for filename in os.listdir(os.getcwd()):
         x,y = get_X_y(df)
         name = filename.replace(".csv", "")
         name = name+"_filtered"
-        visualise(x, df, name)
+        box_plot(df, loc, name)
+        #visualise(x, df, name)
 
 dir = r"C:\\Users\\Colle\\OneDrive\\Documents\\Boring\\2021 Summer Internship\\ShanleySummerStudent21\\Early Detection\\Data\\Preprocessed_Data\\"
 os.chdir(dir)
-
+"""
 for filename in glob.glob('*.csv'):
     with open(os.path.join(os.getcwd(), filename), 'r') as f:
         df = pd.read_csv(f)
@@ -73,3 +99,4 @@ for filename in glob.glob('*.csv'):
         name = filename.replace(".csv", "")
         name = name+"_all_data"
         visualise(x, df, name)
+"""
