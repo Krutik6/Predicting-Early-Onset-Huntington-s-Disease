@@ -7,6 +7,7 @@ library(data.table)
 library(factoextra)
 library(dplyr)
 library(tibble)
+library(caTools)
 
 ############################################
 # code extracted from DE_ML_Input_mRNA.R
@@ -76,7 +77,22 @@ transform_for_ml <- function(RNA_data, file_name, colData)
   f <- paste(loc,file_name,".csv", sep="")
   write.csv(RNA_ML, file=f)
   print(paste("saved ", f))
+  return (RNA_ML)
 
+
+}
+
+split <- function(data, name){
+  loc <-"C:\\Users\\Colle\\OneDrive\\Documents\\Boring\\2021 Summer Internship\\ShanleySummerStudent21\\Early Detection\\Data\\Preprocessed_Data\\test_train_splits\\"
+  require(caTools)
+  set.seed(101)
+  sample = sample.split(data$Conditions, SplitRatio = .8)
+  train = subset(data, sample == TRUE)
+  test  = subset(data, sample == FALSE)
+  tr <- paste(loc, name, "_train.csv", sep="")
+  write.csv(train, file=tr)
+  te <- paste(loc, name, "_test.csv", sep="")
+  write.csv(test, file=te)
 }
 
 setwd("C:\\Users\\Colle\\OneDrive\\Documents\\Boring\\2021 Summer Internship\\ShanleySummerStudent21\\Early Detection\\Data\\Separated_Data")
@@ -118,7 +134,8 @@ i <- 0
 for (rna in rnas){
   i<- i+1
   col <- getColnames(rna)
-  transform_for_ml(rna, nrnas[i], col)
+  df = transform_for_ml(rna, nrnas[i], col)
+  split(df, nrnas[i])
 }
 
 
