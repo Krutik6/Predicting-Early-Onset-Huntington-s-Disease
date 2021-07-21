@@ -4,10 +4,9 @@ There are clear differences between the number of HD, and WT mice. This can be a
 """
 
 from imblearn.over_sampling import SVMSMOTE
-from collections import Counter
 from pandas import read_csv
 from varname import nameof
-
+from glob import glob
 from ML import *
 
 
@@ -17,21 +16,33 @@ def perform_smote(RNA, X_file_name, y_file_name):
     X= X.drop(columns ="Samples")
     X_resampled, y_resampled = SVMSMOTE().fit_resample(X, y)
     # save files
-    loc = "../InputForML/SMOTE/{}.csv"
+    loc = "../../../../InputForML/SMOTE/{}.csv"
 
     X_resampled.to_csv(loc.format(X_file_name))
     y_resampled.to_csv(loc.format(y_file_name))
     print("saved", X_file_name, y_file_name)
 
-train_mRNA = read_csv("../Early Detection/Data/FilteredData/mRNA_train.csv")
-train_miRNA = read_csv("../Early Detection/Data/FilteredData/miRNA_train.csv")
-validate_mRNA = read_csv("../Early Detection/Data/FilteredData/mRNA_validation.csv")
-validate_miRNA = read_csv("../Early Detection/Data/FilteredData/miRNA_validation.csv")
+def oversample(df, n):
+    # minority class is always WT
+    m = df["Conditions"]
+    # Non WT is transformed to NaN
+    m = m.where(df["Conditions"]=="WT")
+    m=m.dropna()
+    # select n terms from minority class
+    added = m.sample(n, replace=True)
+    # add these to the dataset
+    return df.append(df.loc[added.index])
 
-RNAs = [train_mRNA, train_miRNA, validate_mRNA, validate_miRNA]
-RNA_labs = ["train_mRNA", "train_miRNA", "validate_mRNA", "validate_miRNA"]
+dir = r"../Early Detection/Data/FilteredData/age"
+chdir(dir)
+for filename in glob.glob('*train*'):
+    with open(os.path.join(os.getcwd(), filename), 'r') as f:
+        rna = read_csv(f)
+        n = filename.replace(".csv", "")
 
-i=0
-for rna in RNAs:
-    perform_smote(rna, ("X_"+RNA_labs[i]), ("y_"+RNA_labs[i]))
-    i+=1
+        # duplicate data so enough values present for SMOTE, duplicate rather than random oversample to avoid
+        # potential biases from oversampling
+        rna = rna.append(rna)
+
+        perform_smote(rna, ("X_"+n), ("y_"+n))
+

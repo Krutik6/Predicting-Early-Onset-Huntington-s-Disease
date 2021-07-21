@@ -1,6 +1,6 @@
 # performs feature extraction on the datasets using variance threshold method
-
-
+import pandas as pd
+from sklearn.preprocessing import MinMaxScaler
 from sklearn.feature_selection import VarianceThreshold
 from sklearn.feature_selection import chi2
 from sklearn.feature_selection import SelectPercentile
@@ -15,15 +15,14 @@ from ML import *
 
 
 
-def filter_method(X, y):
+def filter_method(X, y, cols):
     # chi squared
-    X_proc= X.iloc[: , 1:]
+    #X_proc= X.iloc[: , 1:]
+    X_proc=X
     print(X_proc.shape)
     chi = SelectPercentile(chi2, percentile=5)
     X_new = chi.fit_transform(X_proc, y)
     m = chi.get_support(indices=False)
-    cols = X.columns
-    cols = cols[1:]
     selected_columns = cols[m]
     X_new = pd.DataFrame(X_new)
     X_new.columns = selected_columns
@@ -65,7 +64,7 @@ def recursive_ft(X,y, pickle_name, RNA_type):
                    len(rfecv.grid_scores_) + min_features_to_select),
              rfecv.grid_scores_)
 
-    loc = r"../Figures/"
+    loc = r"../../Figures/"
     name = loc+"finding_optimal_features_"+RNA_type+".png"
     plt.savefig(name)
 
@@ -106,7 +105,7 @@ def continue_from_rfecv(file_name, RNA_type, X):
                    len(rfecv.grid_scores_) + min_features_to_select),
              rfecv.grid_scores_)
 
-    loc = r"../Figures/"
+    loc = r"../../Figures/"
     name = loc+"finding_optimal_features_"+RNA_type+".png"
     plt.savefig(name)
 
@@ -139,6 +138,7 @@ def continue_from_rfecv(file_name, RNA_type, X):
 
 def tidy_data(filtered, original, conditions):
     # join names from original onto filtered
+
     samples = original.Samples
     s = pd.DataFrame({"Samples": samples})
 
@@ -153,7 +153,7 @@ def run():
     dir = "C:\\Users\\Colle\\OneDrive\\Documents\\Boring\\2021 Summer Internship\\ShanleySummerStudent21\\Early Detection\\Data\\Preprocessed_Data\\"
     chdir(dir)
 
-    loc = r"../FilteredData/"
+    loc = r"../../FilteredData/age/"
     """
     #mRNA----------------------------------------------
     mRNA = pd.read_csv("mRNA_train.csv")
@@ -198,23 +198,36 @@ def run():
     """
     ##############################################################################
     # age data
-    for filename in glob.glob('*_[0-9]*m.csv'):
+    dir = "C:\\Users\\Colle\\OneDrive\\Documents\\Boring\\2021 Summer Internship\\ShanleySummerStudent21\\Early Detection\\Data\\Preprocessed_Data\\test_train_splits\\"
+    chdir(dir)
+    for filename in glob.glob('*test.csv'):
         with open(os.path.join(os.getcwd(), filename), 'r') as f:
-            name =filename.replace(".csv", "")
-            print(name)
-
-            RNA = pd.read_csv(filename)
-            X,y = get_X_y(RNA)
-            X_new = filter_method(X,y)
+            name = filename.replace(".csv", "").replace("_test", "")
+            rna = pd.read_csv(f)
+            X,y = get_X_y(rna)
+            scaler = MinMaxScaler()
+            scaler.fit(X.drop(columns="Samples"))
+            X=scaler.transform(X.drop(columns="Samples"))
+            X = pd.DataFrame(X)
+            cols = rna.columns.drop(["Unnamed: 0", "Samples", "Conditions"])
+            X_new = filter_method(X,y, cols)
             # un comment this line if re-generating rfe
-            recursive_ft(X_new,y, (name+"_rfe"), "mRNA")
+            recursive_ft(X_new,y, (name+"_rfe"), name)
 
             RNA_data, RNAs = continue_from_rfecv((name+"_rfe.pickle"), name, X_new)
 
-            RNAs_comb = tidy_data(RNA_data, X, y)
-            RNAs_comb.to_csv((loc+filename))
-            print(name, "is complete")
+            X["Samples"]=rna["Samples"]
 
+            RNAs_comb = tidy_data(RNA_data, X, y)
+            RNAs_comb.to_csv((loc+name+"_train.csv"))
+
+            RNA_val = pd.read_csv(name+"_test.csv")
+            RNA_val_filtered = RNA_val[RNAs]
+
+            mRNA_validation = pd.read_csv(name+"_test.csv")
+            X,y = get_X_y(mRNA_validation)
+            mRNAs_vals_comb = tidy_data(RNA_val_filtered, X, y)
+            mRNAs_vals_comb.to_csv((loc+name+"_validation.csv"))
 
 run()
 ############################################################

@@ -8,7 +8,7 @@ library(factoextra)
 library(dplyr)
 library(tibble)
 library(caTools)
-
+library(bestNormalize)
 ############################################
 # code extracted from DE_ML_Input_mRNA.R
 
@@ -95,25 +95,25 @@ split <- function(data, name){
   write.csv(test, file=te)
 }
 
-setwd("C:\\Users\\Colle\\OneDrive\\Documents\\Boring\\2021 Summer Internship\\ShanleySummerStudent21\\Early Detection\\Data\\Separated_Data")
-
-mRNA_train <- read.csv("mRNA_train.csv")
-mRNA_validation <- read.csv("mRNA_validation.csv")
-miRNA_train <- read.csv("miRNA_train.csv")
-miRNA_validation<- read.csv("miRNA_validation.csv")
-
-
-setwd("C:\\Users\\Colle\\OneDrive\\Documents\\Boring\\2021 Summer Internship\\ShanleySummerStudent21\\Early Detection\\Data\\")
-
-col_mRNA_train <- getColnames(mRNA_train)
-col_mRNA_validation <- getColnames(mRNA_validation)
-col_miRNA_train <- getColnames(miRNA_train)
-col_miRNA_validation <- getColnames(miRNA_validation)
-
-transform_for_ml(mRNA_train, "mRNA_train", col_mRNA_train)
-transform_for_ml(mRNA_validation, "mRNA_validation", col_mRNA_validation)
-transform_for_ml(miRNA_train, "miRNA_train", col_miRNA_train)
-transform_for_ml(miRNA_validation, "miRNA_validation", col_miRNA_validation)
+# setwd("C:\\Users\\Colle\\OneDrive\\Documents\\Boring\\2021 Summer Internship\\ShanleySummerStudent21\\Early Detection\\Data\\Separated_Data")
+#
+# mRNA_train <- read.csv("mRNA_train.csv")
+# mRNA_validation <- read.csv("mRNA_validation.csv")
+# miRNA_train <- read.csv("miRNA_train.csv")
+# miRNA_validation<- read.csv("miRNA_validation.csv")
+#
+#
+# setwd("C:\\Users\\Colle\\OneDrive\\Documents\\Boring\\2021 Summer Internship\\ShanleySummerStudent21\\Early Detection\\Data\\")
+#
+# col_mRNA_train <- getColnames(mRNA_train)
+# col_mRNA_validation <- getColnames(mRNA_validation)
+# col_miRNA_train <- getColnames(miRNA_train)
+# col_miRNA_validation <- getColnames(miRNA_validation)
+#
+# transform_for_ml(mRNA_train, "mRNA_train", col_mRNA_train)
+# transform_for_ml(mRNA_validation, "mRNA_validation", col_mRNA_validation)
+# transform_for_ml(miRNA_train, "miRNA_train", col_miRNA_train)
+# transform_for_ml(miRNA_validation, "miRNA_validation", col_miRNA_validation)
 
 
 #####################################################################
@@ -133,8 +133,31 @@ nrnas <- list("miRNA_2m", "miRNA_6m", "miRNA_10m", "mRNA_2m", "mRNA_6m", "mRNA_1
 i <- 0
 for (rna in rnas){
   i<- i+1
+
   col <- getColnames(rna)
-  df = transform_for_ml(rna, nrnas[i], col)
+  df <- transform_for_ml(rna, nrnas[i], col)
+  split(df, nrnas[i])
+}
+#####################################################################
+
+setwd("C:\\Users\\Colle\\OneDrive\\Documents\\Boring\\2021 Summer Internship\\ShanleySummerStudent21\\Early Detection\\Data\\Separated_Data\\normalized_age\\")
+miRNA_2m <- read.csv("miRNA_2m.csv")
+miRNA_6m <- read.csv("miRNA_6m.csv")
+miRNA_10m <- read.csv("miRNA_10m.csv")
+
+mRNA_2m <- read.csv("mRNA_2m.csv")
+mRNA_6m <- read.csv("mRNA_6m.csv")
+mRNA_10m <- read.csv("mRNA_10m.csv")
+
+rnas <- list(miRNA_2m, miRNA_6m, miRNA_10m, mRNA_2m, mRNA_6m, mRNA_10m)
+nrnas <- list("miRNA_2m", "miRNA_6m", "miRNA_10m", "mRNA_2m", "mRNA_6m", "mRNA_10m")
+
+i <- 0
+for (rna in rnas){
+  i<- i+1
+
+  col <- getColnames(rna)
+  df <- transform_for_ml(rna, nrnas[i], col)
   split(df, nrnas[i])
 }
 
