@@ -23,7 +23,7 @@ def classifySVM():
     clf = svm.SVC(gamma=0.001, C=100.)
     for filename in glob.glob('*X*'):
         with open(os.path.join(os.getcwd(), filename), 'r') as f:
-            X_train, X_test, y_train, y_test = get_age_files(f, filename, remove_duplicates=True)
+            X_train, X_test, y_train, y_test = get_age_files(f, filename, remove_duplicates=False)
 
             clf.fit(X_train, y_train)
             #print(cross_val_score(clf, X, y, cv=5, scoring='recall_macro'))

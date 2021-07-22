@@ -53,8 +53,16 @@ def get_age_files(x_f, filename, remove_duplicates=True):
     x = pd.read_csv(x_f)
     y_n = filename.replace("X", "y")
     y = pd.read_csv(y_n)
-    x=x.drop(columns="Unnamed: 0")
-    y=y.drop(columns="Unnamed: 0")
+
+    if remove_duplicates:
+        x=x.drop(columns="Unnamed: 0").drop_duplicates()
+        y = x.join(y)
+        y=y["Conditions"]
+        y= pd.DataFrame(y)
+    else:
+        y=y.drop(columns="Unnamed: 0")
+        x = x.drop(columns="Unnamed: 0")
+
     return train_test_split(x,y,test_size=0.2)
     
 
