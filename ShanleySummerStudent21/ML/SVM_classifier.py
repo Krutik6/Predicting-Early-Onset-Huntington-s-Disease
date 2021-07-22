@@ -1,3 +1,9 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+from sklearn import svm, datasets
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import plot_confusion_matrix
 from sklearn.model_selection import learning_curve
 from sklearn.svm import SVC
 from sklearn import svm
@@ -15,9 +21,10 @@ chdir(loc)
 
 def classifySVM():
     clf = svm.SVC(gamma=0.001, C=100.)
-    for filename in glob.glob('*X_train*'):
+    for filename in glob.glob('*X*'):
         with open(os.path.join(os.getcwd(), filename), 'r') as f:
-            X_train, X_test, y_train, y_test = open_files(f, filename)
+            X_train, X_test, y_train, y_test = get_age_files(f, filename, remove_duplicates=True)
+
             clf.fit(X_train, y_train)
             #print(cross_val_score(clf, X, y, cv=5, scoring='recall_macro'))
             y_preds = clf.predict(X_test)
@@ -26,33 +33,16 @@ def classifySVM():
             #print('Test Accuracy : %.3f'%(y_preds == y_test).mean())
             #print('Test Accuracy : %.3f'%clf.score(X_test, y_test)) ## Score method also evaluates accuracy for classification models.
             print('Training Accuracy : %.3f'%clf.score(X_train, y_train))
-            rna = filename.replace("X_train_", "").replace(".csv", "")
+            print(filename)
+            rna = filename.replace("X_", "").replace(".csv", "")
             name = "SVM_{}_Permutation_Importance.png".format(rna)
             permutation_based_feature_importance(clf, X_train, y_train, X_train.columns, save=True, filename = name)
+            plot_confusion(clf, X_test, y_test, ["HD", "WT"])
 
 
 
-def plot_confusion():
+def plot_confusion(classifier, X_test, y_test, class_names):
     # https://scikit-learn.org/stable/auto_examples/model_selection/plot_confusion_matrix.html#sphx-glr-auto-examples-model-selection-plot-confusion-matrix-py
-    import numpy as np
-    import matplotlib.pyplot as plt
-
-    from sklearn import svm, datasets
-    from sklearn.model_selection import train_test_split
-    from sklearn.metrics import plot_confusion_matrix
-
-    # import some data to play with
-    iris = datasets.load_iris()
-    X = iris.data
-    y = iris.target
-    class_names = iris.target_names
-
-    # Split the data into a training set and a test set
-    X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0)
-
-    # Run classifier, using a model that is too regularized (C too low) to see
-    # the impact on the results
-    classifier = svm.SVC(kernel='linear', C=0.01).fit(X_train, y_train)
 
     np.set_printoptions(precision=2)
 
@@ -70,7 +60,6 @@ def plot_confusion():
         print(disp.confusion_matrix)
 
     plt.show()
-
 
 
 def evaluate_model(y_pred, y_true, X_test, y_test, clf):

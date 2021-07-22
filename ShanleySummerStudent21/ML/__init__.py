@@ -13,6 +13,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.inspection import permutation_importance
 import sys
 import warnings
+from sklearn.model_selection import train_test_split
 import itertools
 warnings.filterwarnings("ignore")
 np.set_printoptions(precision=2)
@@ -47,6 +48,15 @@ def get_X_y(df):
     X = X.loc[:, X.columns != "Unnamed: 0"]
     y = df.loc[:, df.columns == 'Conditions']
     return X, y
+
+def get_age_files(x_f, filename, remove_duplicates=True):
+    x = pd.read_csv(x_f)
+    y_n = filename.replace("X", "y")
+    y = pd.read_csv(y_n)
+    x=x.drop(columns="Unnamed: 0")
+    y=y.drop(columns="Unnamed: 0")
+    return train_test_split(x,y,test_size=0.2)
+    
 
 def open_files(f, filename):
     X_train = pd.read_csv(f)

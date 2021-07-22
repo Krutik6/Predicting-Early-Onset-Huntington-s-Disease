@@ -19,7 +19,7 @@ import glob
 
 
 def gradient_tree_boosting():
-    for filename in glob.glob('*X_train*'):
+    for filename in glob.glob('*X*'):
         with open(os.path.join(os.getcwd(), filename), 'r') as f:
             X_train, X_test, y_train, y_test = open_files(f, filename)
 

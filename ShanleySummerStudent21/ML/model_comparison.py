@@ -16,9 +16,9 @@ from ML import *
 loc = r"../InputForML/SMOTE/"
 chdir(loc)
 
-for filename in glob.glob('*X_train*'):
+for filename in glob.glob('*X*'):
     with open(os.path.join(os.getcwd(), filename), 'r') as f:
-        X_train, X_test, y_train, y_test = open_files(f, filename)
+        X_train, X_test, y_train, y_test = get_age_files(f, filename)
 
 
     # Create classifiers
@@ -68,9 +68,9 @@ for filename in glob.glob('*X_train*'):
     plt.tight_layout()
     #plt.show()
 
-    rna = filename.replace("X_train_", "").replace(".csv", "")
-    loc = r"../../Early Detection/Data/Figures/"
+    rna = filename.replace("X_", "").replace(".csv", "")
+    loc = r"../../Early Detection/Data/Figures/age/"
     name = loc+"calibration_plots_"+rna+".png"
-    print(os.getcwd())
+    print(loc)
     plt.savefig(name)
     print("finished")
